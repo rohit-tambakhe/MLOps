@@ -1,0 +1,48 @@
+# DVC pipeline definition
+
+stages:
+  prepare_data:
+    cmd: python src/data/prepare_data.py
+    deps:
+      - src/data/prepare_data.py
+    outs:
+      - data/cifar-10-batches-py
+    desc: "Download and prepare CIFAR-10 dataset"
+
+  train_model:
+    cmd: python src/training/train.py
+    deps:
+      - src/training/train.py
+      - src/models/cifar_classifier.py
+      - src/data/cifar_datamodule.py
+      - data/cifar-10-batches-py
+      - configs/config.yaml
+    outs:
+      - checkpoints/final_model.ckpt
+    metrics:
+      - metrics/train_metrics.json
+    plots:
+      - plots/training_curves.png
+    desc: "Train CIFAR-10 classifier"
+
+  convert_to_onnx:
+    cmd: python src/inference/convert_to_onnx.py --checkpoint checkpoints/final_model.ckpt
+    deps:
+      - src/inference/convert_to_onnx.py
+      - checkpoints/final_model.ckpt
+    outs:
+      - models/cifar_classifier.onnx
+    desc: "Convert trained model to ONNX format"
+
+  evaluate_model:
+    cmd: python src/evaluation/evaluate.py --model-path models/cifar_classifier.onnx
+    deps:
+      - src/evaluation/evaluate.py
+      - models/cifar_classifier.onnx
+      - data/cifar-10-batches-py
+    metrics:
+      - metrics/evaluation_metrics.json
+    plots:
+      - plots/confusion_matrix.png
+      - plots/classification_report.png
+    desc: "Evaluate ONNX model performance"

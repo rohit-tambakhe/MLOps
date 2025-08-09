@@ -1,0 +1,16 @@
+# Minimal requirements for inference container
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# ONNX runtime
+onnxruntime==1.16.3
+
+# Image processing
+numpy==1.24.4
+Pillow==10.1.0
+
+# Logging
+structlog==23.2.0
+python-json-logger==2.0.7

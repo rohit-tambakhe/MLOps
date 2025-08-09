@@ -1,0 +1,36 @@
+# Main configuration file for the MLOps pipeline
+
+defaults:
+  - model: cifar_classifier
+  - data: cifar10
+  - trainer: default
+  - logger: wandb
+  - callbacks: default
+  - _self_
+
+# Global settings
+seed: 42
+experiment_name: "cifar10_baseline"
+tags: ["cifar10", "cnn", "baseline"]
+
+# Paths
+data_dir: "./data"
+log_dir: "./logs"
+checkpoint_dir: "./checkpoints"
+
+# Training settings
+max_epochs: 50
+early_stopping_patience: 10
+monitor_metric: "val/acc"
+monitor_mode: "max"
+
+# Reproducibility
+deterministic: true
+benchmark: false
+
+# Hydra settings
+hydra:
+  run:
+    dir: ${log_dir}/hydra/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    chdir: true

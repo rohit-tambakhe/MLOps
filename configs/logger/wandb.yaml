@@ -1,0 +1,11 @@
+# Weights & Biases logger configuration
+
+_target_: pytorch_lightning.loggers.WandbLogger
+
+project: "mlops-pipeline"
+name: ${experiment_name}
+tags: ${tags}
+save_dir: ${log_dir}
+offline: false
+log_model: true
+save_code: true

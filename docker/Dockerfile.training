@@ -1,0 +1,45 @@
+# Training Docker image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY src/ src/
+COPY configs/ configs/
+COPY dvc.yaml .
+COPY .dvcignore .
+
+# Create necessary directories
+RUN mkdir -p data logs checkpoints models metrics plots
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV WANDB_DIR=/app/logs/wandb
+ENV HYDRA_FULL_ERROR=1
+
+# Default command
+CMD ["python", "src/training/train.py"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+  CMD python -c "import torch; import pytorch_lightning; print('Training environment ready')" || exit 1
+
+# Labels
+LABEL maintainer="MLOps Pipeline"
+LABEL description="Training container for CIFAR-10 classifier"
+LABEL version="1.0.0"
